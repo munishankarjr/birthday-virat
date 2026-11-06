@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- viewport: use the real phone width instead of a zoomed-out desktop layout -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffe3ef" />
+  <meta name="description" content="A little birthday surprise, made with love." />
+  <title>A Little Birthday Magic ❤️</title>
+
+  <!-- Free Google Fonts: Fredoka (round, clay-like) + Caveat (handwritten accent) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Order matters: tokens first, then reusable parts, then scene-specific rules -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/clay.css" />
+  <link rel="stylesheet" href="css/scenes.css" />
+  <link rel="stylesheet" href="css/cake.css" />
+  <link rel="stylesheet" href="css/effects.css" />
+</head>
+<body>
+
+  <!-- ============ BACKGROUND LAYERS (all decorative) ============
+       z-index order: blobs 0 → night 1 → hearts 2 → balloons 3 → app 4 → confetti 5 -->
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob--pink"></span>
+    <span class="blob blob--lavender"></span>
+    <span class="blob blob--cream"></span>
+  </div>
+
+  <!-- Dark starry sky. Hidden until JS adds .is-night to <body> -->
+  <div id="night" class="night" aria-hidden="true"></div>
+
+  <div id="hearts-layer" class="hearts-layer" aria-hidden="true"></div>
+  <div id="balloon-layer" class="balloon-layer" aria-hidden="true"></div>
+
+  <!-- ============ THE APP: one <section> per scene ============
+       Only the one with .is-active is visible (see sceneManager.js) -->
+  <main id="app">
+
+    <!-- ===== SCENE 1: WELCOME ===== -->
+    <section id="scene-welcome" class="scene" data-scene="welcome" aria-labelledby="welcome-title">
+      <div class="clay-card welcome-card">
+        <div class="welcome-emoji" aria-hidden="true">🎁</div>
+        <h1 id="welcome-title" class="welcome-title">
+          Hey <span class="name-highlight" data-name>Virat</span>!
+        </h1>
+        <p class="welcome-text">Someone has a little surprise for you...</p>
+        <button id="open-btn" class="clay-btn" type="button">
+          Open Your Surprise <span aria-hidden="true">❤️</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCENE 2: CAKE (wish + blow out the candle) ===== -->
+    <section id="scene-cake" class="scene" data-scene="cake" aria-labelledby="cake-title">
+      <div class="clay-card cake-card">
+        <h2 id="cake-title" class="cake-title"><span data-name>Virat</span>, make a wish! ✨</h2>
+        <p id="cake-hint" class="cake-hint swap" aria-live="polite">Close your eyes and think of something wonderful…</p>
+
+        <div class="cake-stage">
+          <div class="cake-scaler">
+            <!-- The 3D clay cake is built entirely from styled <div>s (see cake.css) -->
+            <div id="cake" class="cake" role="img" aria-label="A cute pink and lavender birthday cake with one lit candle">
+              <div class="flame-glow"></div>
+              <div class="cake__plate"></div>
+
+              <div class="tier tier--bottom">
+                <div class="frost"></div>
+                <div class="sprinkles" data-sprinkles="26"></div>
+                <div class="face">
+                  <span class="eye"></span><span class="eye"></span>
+                  <span class="blush blush--l"></span><span class="blush blush--r"></span>
+                  <span class="mouth"></span>
+                </div>
+              </div>
+
+              <div class="tier tier--top">
+                <div class="frost"></div>
+                <div class="sprinkles" data-sprinkles="14"></div>
+              </div>
+
+              <div class="candle"></div>
+              <div class="wick"></div>
+              <div class="flame-wrap">
+                <div class="flame"><div class="flame__core"></div></div>
+              </div>
+              <div class="smoke">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mic-row" class="mic-row">
+          <div class="meter" aria-hidden="true"><div id="meter-fill" class="meter__fill"></div></div>
+          <p id="mic-status" class="mic-status" aria-live="polite"></p>
+        </div>
+
+        <!-- Fallback when the microphone isn't available -->
+        <button id="manual-btn" class="clay-btn clay-btn--soft fade-btn is-hidden" type="button">
+          Blow out the candle 💨
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCENE 3: THE BIG REVEAL (over the dark starry sky) ===== -->
+    <section id="scene-reveal" class="scene" data-scene="reveal" aria-labelledby="reveal-title">
+      <div class="reveal">
+        <!-- Letters are created by main.js (one <span> each, so they can animate one by one) -->
+        <h2 id="reveal-title" class="reveal__title"></h2>
+        <p class="reveal__sub">Today is all about you ✨</p>
+        <button id="continue-btn" class="clay-btn fade-btn is-hidden" type="button">
+          A little message for you 💌
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCENE 4: FINAL MESSAGE + REPLAY ===== -->
+    <section id="scene-final" class="scene" data-scene="final" aria-labelledby="final-title">
+      <div class="clay-card message-card">
+        <div class="message-cake" aria-hidden="true">🎂</div>
+        <h2 id="final-title" class="message-title">Happy Birthday, <span class="name-highlight" data-name>Virat</span>!</h2>
+        <div id="message-body" class="message-body"></div>
+        <p id="signoff" class="signoff seq"></p>
+        <button id="replay-btn" class="clay-btn clay-btn--soft seq" type="button">Replay the magic 🔁</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Confetti is drawn on a canvas that covers the whole screen, above everything -->
+  <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Script order matters: modules first, main.js last (it uses all of them) -->
+  <script src="js/config.js"></script>
+  <script src="js/sfx.js"></script>
+  <script src="js/blowDetector.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/sceneManager.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

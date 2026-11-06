@@ -1,0 +1,71 @@
+/* =========================================================
+   base.css — design tokens, reset, typography
+   Everything visual (colours, radii, shadows) is defined ONCE
+   here as CSS variables, so changing the theme = editing this file.
+   ========================================================= */
+
+:root {
+  /* --- Palette: premium pastel pink / cream / lavender --- */
+  --pink-100: #fff0f6;
+  --pink-200: #ffdbe9;
+  --pink-300: #ffc2d9;
+  --pink-400: #ff9ec4;
+  --pink-500: #ff6fa5;
+  --lavender-200: #e9ddff;
+  --lavender-300: #d4c1ff;
+  --lavender-400: #b79cff;
+  --cream-100: #fff9ef;
+  --cream-200: #ffeed4;
+  --ink: #5a3a55;          /* soft plum instead of harsh black */
+  --ink-soft: #8a6a85;
+
+  /* --- Clay shadow recipe (the whole "claymorphism" secret) ---
+     1) a soft drop shadow outside
+     2) a bright highlight inside, top-left
+     3) a darker coloured shade inside, bottom-right        */
+  --clay-drop: 0 18px 36px rgba(183, 120, 170, 0.28);
+  --clay-light: inset 6px 6px 14px rgba(255, 255, 255, 0.9);
+  --clay-shade: inset -8px -10px 18px rgba(214, 150, 190, 0.35);
+  --clay-shadow: var(--clay-drop), var(--clay-light), var(--clay-shade);
+
+  /* --- Shape --- */
+  --radius-lg: 36px;
+  --radius-pill: 999px;
+
+  /* --- Type --- */
+  --font-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+
+  /* --- Motion --- */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Minimal reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-display);
+  color: var(--ink);
+  /* layered gradient = pastel "sky" behind everything */
+  background:
+    radial-gradient(circle at 20% 10%, var(--pink-200), transparent 55%),
+    radial-gradient(circle at 85% 90%, var(--lavender-200), transparent 55%),
+    var(--cream-100);
+  overflow: hidden;                 /* no scrollbars; hearts float off-screen */
+  -webkit-tap-highlight-color: transparent;
+  /* 100dvh fixes the mobile browser address-bar jump (set in scenes.css) */
+}
+
+button { font: inherit; border: 0; cursor: pointer; }
+
+/* Accessibility: if a user asks their OS for less motion, tone animations down */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;   /* otherwise the 0.7s visibility delay would still apply */
+  }
+}

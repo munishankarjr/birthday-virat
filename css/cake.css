@@ -1,0 +1,409 @@
+/* =========================================================
+   cake.css — the clay cake, candle, flame and smoke (pure CSS, no images)
+
+   How it's built: every part is an absolutely-positioned <div> inside
+   .cake (a 260×330 box). "bottom" values measure up from the plate.
+     plate 0 → bottom tier 20–124 → top tier 110–196 → candle 192–254
+     → wick 252–262 → flame 258–298
+   ========================================================= */
+
+.cake-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.45rem;
+  padding: 1.6rem 1.2rem 1.7rem;
+}
+
+.cake-title {
+  font-size: clamp(1.7rem, 7.5vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.cake-hint {
+  font-family: var(--font-hand);
+  font-size: clamp(1.45rem, 6vw, 1.75rem);
+  color: var(--ink-soft);
+  min-height: 2.5em;             /* reserve 2 lines so the layout doesn't jump when text changes */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+/* Re-trigger this class (JS removes + adds it) to fade new text in */
+.swap { animation: swapIn 0.7s var(--ease-soft) both; }
+@keyframes swapIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The stage reserves the cake's SCALED size, so small phones can shrink it
+   without leaving a big empty gap (transform alone doesn't change layout size). */
+.cake-stage {
+  --cake-scale: 1;
+  width: calc(290px * var(--cake-scale));
+  height: calc(330px * var(--cake-scale));
+  display: flex;
+  justify-content: center;
+}
+@media (max-height: 760px) { .cake-stage { --cake-scale: 0.88; } }
+@media (max-height: 680px) { .cake-stage { --cake-scale: 0.76; } }
+@media (max-height: 600px) { .cake-stage { --cake-scale: 0.62; } }
+
+.cake-scaler {
+  transform: scale(var(--cake-scale));
+  transform-origin: top center;
+  width: 260px;
+  height: 330px;
+  flex: none;
+}
+
+.cake {
+  --lean: 0;                      /* JS sets 0..1 while you blow; the flame leans with it */
+  position: relative;
+  width: 260px;
+  height: 330px;
+  animation: cakeFloat 5s ease-in-out infinite;
+}
+@keyframes cakeFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* ---------- Plate ---------- */
+.cake__plate {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 284px;
+  height: 38px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff, #efe3ff);
+  box-shadow:
+    0 16px 22px rgba(183, 120, 170, 0.32),
+    inset 0 5px 7px #fff,
+    inset 0 -5px 9px rgba(183, 150, 230, 0.4);
+}
+
+/* ---------- Tiers (shared clay look) ---------- */
+.tier {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow:
+    0 10px 18px rgba(200, 100, 150, 0.28),
+    inset 8px 8px 14px rgba(255, 255, 255, 0.6),
+    inset -10px -12px 18px rgba(214, 90, 140, 0.33);
+}
+.tier--bottom {
+  width: 236px;
+  height: 104px;
+  bottom: 20px;
+  border-radius: 28px 28px 32px 32px;
+  background: linear-gradient(160deg, #ffc4da, #ff8db6);
+  z-index: 1;
+}
+.tier--top {
+  width: 168px;
+  height: 86px;
+  bottom: 110px;
+  border-radius: 26px 26px 12px 12px;
+  background: linear-gradient(160deg, #eadfff, #bfa5ff);
+  box-shadow:
+    0 10px 18px rgba(140, 100, 220, 0.3),
+    inset 8px 8px 14px rgba(255, 255, 255, 0.65),
+    inset -10px -12px 18px rgba(120, 80, 210, 0.3);
+  z-index: 2;
+}
+
+/* Cream frosting cap with little drips (drips = repeating half-circles) */
+.frost {
+  position: absolute;
+  top: -11px;
+  left: -5px;
+  right: -5px;
+  height: 36px;
+  border-radius: 24px;
+  background: linear-gradient(#fffaf3, #ffeede);
+  box-shadow:
+    0 6px 10px rgba(180, 100, 130, 0.22),
+    inset 4px 5px 8px #fff,
+    inset -4px -6px 10px rgba(255, 190, 150, 0.4);
+}
+.frost::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 28px;
+  height: 18px;
+  background: radial-gradient(circle at 50% 0, #ffeede 0 9px, transparent 10px) 0 0 / 34px 18px repeat-x;
+  filter: drop-shadow(0 3px 2px rgba(180, 100, 130, 0.18));
+}
+
+/* Sprinkles are tiny <i> tags JS scatters with random --x --y --r --c */
+.sprinkles { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.sprinkles i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 9px;
+  height: 3.5px;
+  border-radius: 3px;
+  background: var(--c);
+  transform: rotate(var(--r));
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+/* Cute face on the bottom tier */
+.face { position: absolute; left: 0; right: 0; top: 46px; height: 40px; }
+.eye {
+  position: absolute;
+  top: 0;
+  width: 11px;
+  height: 14px;
+  border-radius: 50%;
+  background: #5a3a55;
+  box-shadow: inset 2px 3px 3px rgba(255, 255, 255, 0.5);
+  animation: blink 5s infinite;
+  transform-origin: center;
+}
+.eye:nth-of-type(1) { left: calc(50% - 38px); }
+.eye:nth-of-type(2) { left: calc(50% + 27px); }
+@keyframes blink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  96%           { transform: scaleY(0.1); }
+}
+.blush {
+  position: absolute;
+  top: 14px;
+  width: 20px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 105, 150, 0.45);
+  filter: blur(1px);
+}
+.blush--l { left: calc(50% - 62px); }
+.blush--r { left: calc(50% + 42px); }
+.mouth {
+  position: absolute;
+  top: 8px;
+  left: calc(50% - 9px);
+  width: 18px;
+  height: 10px;
+  border-bottom: 3.5px solid #5a3a55;
+  border-radius: 0 0 50% 50%;
+}
+
+/* ---------- Candle ---------- */
+.candle {
+  position: absolute;
+  left: 50%;
+  bottom: 192px;
+  width: 17px;
+  height: 62px;
+  margin-left: -8.5px;
+  border-radius: 9px;
+  background: repeating-linear-gradient(135deg, #ffffff 0 8px, #ff9ec4 8px 16px);
+  box-shadow:
+    0 5px 7px rgba(150, 80, 120, 0.3),
+    inset 3px 0 5px rgba(255, 255, 255, 0.75),
+    inset -4px 0 6px rgba(214, 90, 140, 0.4);
+  z-index: 3;
+}
+.wick {
+  position: absolute;
+  left: 50%;
+  bottom: 252px;
+  width: 3px;
+  height: 10px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: #5a3a55;
+  z-index: 3;
+}
+/* Glowing ember on the wick right after the flame goes out */
+.wick::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff7a3c;
+  box-shadow: 0 0 8px 3px rgba(255, 122, 60, 0.8);
+  opacity: 0;
+}
+
+/* ---------- Flame (3 nested layers, each doing ONE job) ----------
+   .flame-wrap : leans sideways as you blow (JS drives --lean)
+   .flame      : the flicker animation + glowing teardrop body
+   .flame__core: bright inner core flickering on a different rhythm,
+                 so the motion never looks like a perfect loop       */
+.flame-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 258px;
+  width: 24px;
+  height: 40px;
+  margin-left: -12px;
+  transform-origin: 50% 100%;
+  transform: rotate(calc(var(--lean) * 32deg)) scaleY(calc(1 - var(--lean) * 0.18));
+  transition: transform 0.12s linear;
+  z-index: 4;
+}
+.flame {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 50% 50% / 78% 78% 22% 22%;
+  background: radial-gradient(ellipse at 50% 85%, #fff1a8 0 22%, #ffc94a 48%, #ff8a3d 82%, #ff6a3d 100%);
+  box-shadow: 0 0 14px 5px rgba(255, 196, 80, 0.65), 0 0 34px 12px rgba(255, 150, 80, 0.35);
+  transform-origin: 50% 100%;
+  animation: flicker 1.3s ease-in-out infinite;
+}
+.flame__core {
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 9px;
+  height: 20px;
+  margin-left: -4.5px;
+  border-radius: 50% 50% 50% 50% / 75% 75% 25% 25%;
+  background: radial-gradient(ellipse at 50% 80%, #ffffff, #fff3b8 70%);
+  opacity: 0.92;
+  transform-origin: 50% 100%;
+  animation: flickerCore 0.83s ease-in-out infinite;
+}
+@keyframes flicker {
+  0%, 100% { transform: scale(1, 1) skewX(0deg); }
+  18%      { transform: scale(0.94, 1.07) skewX(-3deg); }
+  35%      { transform: scale(1.05, 0.95) skewX(2.5deg); }
+  52%      { transform: scale(0.97, 1.09) skewX(-2deg); }
+  71%      { transform: scale(1.03, 0.97) skewX(3deg); }
+  86%      { transform: scale(0.96, 1.04) skewX(-1deg); }
+}
+@keyframes flickerCore {
+  0%, 100% { transform: scale(1, 1); }
+  30%      { transform: scale(0.85, 1.12); }
+  60%      { transform: scale(1.1, 0.92); }
+  80%      { transform: scale(0.92, 1.06); }
+}
+
+/* Soft warm light around the flame */
+.flame-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 232px;
+  width: 170px;
+  height: 170px;
+  margin-left: -85px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 205, 110, 0.6), rgba(255, 160, 90, 0.2) 45%, transparent 70%);
+  animation: glowPulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.1); }
+}
+
+/* ---------- Smoke ---------- */
+.smoke {
+  position: absolute;
+  left: 50%;
+  bottom: 262px;
+  width: 0;
+  height: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.smoke span {
+  position: absolute;
+  left: -8px;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(215, 205, 230, 0.95), rgba(190, 178, 215, 0.55));
+  filter: blur(3px);
+  opacity: 0;
+}
+.smoke span:nth-child(1) { --dx: -14px; --delay: 0s;    }
+.smoke span:nth-child(2) { --dx: 12px;  --delay: 0.22s; }
+.smoke span:nth-child(3) { --dx: -6px;  --delay: 0.5s;  }
+.smoke span:nth-child(4) { --dx: 20px;  --delay: 0.8s;  }
+.smoke span:nth-child(5) { --dx: -22px; --delay: 1.1s;  }
+
+/* ---------- Blown-out state: JS only adds .is-out, CSS does everything ---------- */
+.cake.is-out .flame-wrap { animation: flameOut 0.6s ease-in forwards; }
+.cake.is-out .flame-glow { animation: none; opacity: 0; transition: opacity 0.6s; }
+.cake.is-out .wick::after { animation: ember 2.2s ease-out forwards; }
+.cake.is-out .smoke span {
+  animation: smokeRise 2.8s ease-out var(--delay) forwards;
+}
+
+@keyframes flameOut {
+  0%   { opacity: 1; }
+  35%  { transform: rotate(calc(var(--lean) * 32deg)) scale(0.85, 1.2); opacity: 0.95; }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.15, 0.3); }
+}
+@keyframes ember {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes smokeRise {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  15%  { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(var(--dx), -120px) scale(2.6); }
+}
+
+/* ---------- Microphone meter + status ---------- */
+.mic-row {
+  width: 100%;
+  min-height: 3.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.meter {
+  width: 62%;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 2px 3px 6px rgba(183, 120, 170, 0.35), inset -2px -2px 4px #fff;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.mic-row.is-listening .meter { opacity: 1; }
+.meter__fill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--lavender-400), var(--pink-500));
+  transform-origin: left center;
+  transform: scaleX(var(--level, 0));   /* scaleX = GPU-cheap (animating width would re-layout) */
+  transition: transform 0.08s linear;
+}
+.mic-status {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  min-height: 1.3em;
+}
+
+/* Buttons that fade in/out instead of popping */
+.fade-btn { transition: opacity 0.6s var(--ease-soft), transform 0.6s var(--ease-soft), visibility 0s; }
+.fade-btn.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  pointer-events: none;
+}
